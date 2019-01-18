@@ -8,6 +8,7 @@ Instance plugin config for managers on Google
     "Properties": {
         "NamePrefix": "{{ var `/cluster/name` }}-manager",
         "Network": "{{ var `/cluster/name` }}-network",
+        "Subnetwork": "{{ var `/cluster/name` }}-subnetwork",
         "Tags": [
           "cluster-{{ var `/cluster/name` }}-network",
           "princeton-access",
