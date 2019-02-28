@@ -104,11 +104,24 @@ resources:
       type: compute.v1.network
       properties:
           autoCreateSubnetworks: false
-    - name: {{ env["deployment"] }}-subnetwork
+    - name: {{ env["deployment"] }}-east1-subnetwork
       type: compute.v1.subnetwork
       properties:
-          region: us-central1
-          ipCidrRange: 172.31.16.0/20
+          region: us-east1
+          ipCidrRange: 172.31.32.0/20
+          privateIpGoogleAccess: true
+          network: $(ref.{{ env["deployment"] }}-network.selfLink)
+    - name: {{ env["deployment"] }}-east4-subnetwork
+      type: compute.v1.subnetwork
+      properties:
+          region: us-east4
+          ipCidrRange: 172.31.48.0/20
+          privateIpGoogleAccess: true
+    - name: {{ env["deployment"] }}-west1-subnetwork
+      type: compute.v1.subnetwork
+      properties:
+          region: us-west1
+          ipCidrRange: 172.31.64.0/20
           privateIpGoogleAccess: true
           network: $(ref.{{ env["deployment"] }}-network.selfLink)
     - name: {{ env["deployment"] }}-firewall
@@ -135,6 +148,9 @@ resources:
               - IPProtocol: udp
           sourceRanges:
               - 172.31.16.0/20
+              - 172.31.32.0/20
+              - 172.31.48.0/20
+              - 172.31.64.0/20
           network: $(ref.{{ env["deployment"] }}-network.selfLink)
     - name: {{ env["deployment"] }}-firewall-bootstrap-https
       type: compute.v1.firewall
