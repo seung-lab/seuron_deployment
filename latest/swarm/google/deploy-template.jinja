@@ -84,7 +84,7 @@ resources:
                         docker stack deploy -c compose.yml {{ env["deployment"] }}
           networkInterfaces:
               - network: $(ref.{{ env["deployment"] }}-network.selfLink)
-                subnetwork: $(ref.{{ env["deployment"]  }}-subnetwork.selfLink)
+                subnetwork: $(ref.{{ env["deployment"]  }}-central1-subnetwork.selfLink)
                 networkIP: {{ properties["managerIP0"] }}
                 accessConfigs:
                  - type: ONE_TO_ONE_NAT
@@ -104,6 +104,13 @@ resources:
       type: compute.v1.network
       properties:
           autoCreateSubnetworks: false
+    - name: {{ env["deployment"] }}-central1-subnetwork
+      type: compute.v1.subnetwork
+      properties:
+          region: us-central1
+          ipCidrRange: 172.31.16.0/20
+          privateIpGoogleAccess: true
+          network: $(ref.{{ env["deployment"] }}-network.selfLink)
     - name: {{ env["deployment"] }}-east1-subnetwork
       type: compute.v1.subnetwork
       properties:
