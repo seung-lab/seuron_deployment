@@ -124,6 +124,7 @@ resources:
           region: us-east4
           ipCidrRange: 172.31.48.0/20
           privateIpGoogleAccess: true
+          network: $(ref.{{ env["deployment"] }}-network.selfLink)
     - name: {{ env["deployment"] }}-west1-subnetwork
       type: compute.v1.subnetwork
       properties:
