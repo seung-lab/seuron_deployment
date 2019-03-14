@@ -25,6 +25,7 @@ Config for workers on AWS
               }
             ],
             "DisableApiTermination": null,
+            "EbsOptimized": true,
             "IamInstanceProfile": {
                 "Arn": "{{ (var `/local/iam`).InstanceProfileArn }}",
                 "Name": null
