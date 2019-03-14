@@ -19,7 +19,8 @@ Config for workers on AWS
                 "DeviceName": "/dev/sda1",
                 "Ebs": {
                   "VolumeSize": 50,
-                  "VolumeType": "io1"
+                  "VolumeType": "io1",
+                  "Iops":"1000"
                 }
               }
             ],
