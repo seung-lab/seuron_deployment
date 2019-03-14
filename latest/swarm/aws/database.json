@@ -25,14 +25,14 @@ Config for workers on AWS
               }
             ],
             "DisableApiTermination": null,
-            "EbsOptimized": null,
+            "EbsOptimized": true,
             "IamInstanceProfile": {
                 "Arn": "{{ (var `/local/iam`).InstanceProfileArn }}",
                 "Name": null
             },
             "ImageId": "{{ var `/local/amiID` }}",
             "InstanceInitiatedShutdownBehavior": null,
-            "InstanceType": "{{ var `/cluster/instanceType/worker` }}",
+            "InstanceType": "{{ var `/cluster/instanceType/database` }}",
             "KeyName": "{{ var `/local/keyName` }}",
             "NetworkInterfaces": [
                 {
