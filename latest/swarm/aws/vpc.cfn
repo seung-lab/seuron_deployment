@@ -6,7 +6,7 @@
         "InfrakitConfigRoot" : {
             "Type" : "String",
             "Description" : "Root URL of the bootscript",
-            "Default" : "https://raw.githubusercontent.com/wongwill86/examples/air-tasks/latest/swarm/",
+            "Default" : "https://raw.githubusercontent.com/seung-lab/seuron_examples/ranl_minnie/latest/swarm/",
             "MinLength": 1
         },
         "TagFieldUser": {
@@ -66,7 +66,7 @@
         "MetadataExportTemplate" : {
             "Type" : "String",
             "Description" : "URL to configure the metadata plugin",
-            "Default" : "https://raw.githubusercontent.com/wongwill86/examples/air-tasks/latest/metadata/aws/export.ikt",
+            "Default" : "https://raw.githubusercontent.com/seung-lab/seuron_examples/ranl_minnie/latest/metadata/aws/export.ikt",
             "MinLength": 1
         },
         "Infrakit" : {
