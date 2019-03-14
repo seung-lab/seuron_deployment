@@ -20,7 +20,7 @@ Config for workers on AWS
                 "Ebs": {
                   "VolumeSize": 50,
                   "VolumeType": "io1",
-                  "Iops":"1000"
+                  "Iops": 1000
                 }
               }
             ],
