@@ -168,7 +168,7 @@
 
         "AWSUbuntu16NoDocker": {
             "us-east-1": {
-                "HVM64": "ami-7765a20d",
+                "HVM64": "ami-0565af6e282977273",
                 "HVMG2": "NOT_SUPPORTED"
             },
             "us-east-2": {
