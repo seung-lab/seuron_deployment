@@ -338,25 +338,121 @@
                         "IpProtocol": "tcp",
                         "FromPort": "22",
                         "ToPort": "22",
-                        "CidrIp": "0.0.0.0/0"
+                        "CidrIp": "128.112.0.0/16"
                     },
                     {
                         "IpProtocol": "tcp",
-                        "FromPort": "443",
-                        "ToPort": "443",
-                        "CidrIp": "0.0.0.0/0"
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": "140.180.0.0/16"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": "204.153.48.0/23"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": "66.180.176.0/24"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": "66.180.180.0/22"
                     },
                     {
                         "IpProtocol": "tcp",
                         "FromPort": "80",
                         "ToPort": "80",
-                        "CidrIp": "0.0.0.0/0"
+                        "CidrIp": "128.112.0.0/16"
                     },
                     {
                         "IpProtocol": "tcp",
-                        "FromPort": "24864",
-                        "ToPort": "24864",
-                        "CidrIp": "0.0.0.0/0"
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "140.180.0.0/16"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "204.153.48.0/23"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "66.180.176.0/24"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "66.180.180.0/22"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "433",
+                        "ToPort": "433",
+                        "CidrIp": "128.112.0.0/16"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "433",
+                        "ToPort": "433",
+                        "CidrIp": "140.180.0.0/16"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "433",
+                        "ToPort": "433",
+                        "CidrIp": "204.153.48.0/23"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "433",
+                        "ToPort": "433",
+                        "CidrIp": "66.180.176.0/24"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "433",
+                        "ToPort": "433",
+                        "CidrIp": "66.180.180.0/22"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8080",
+                        "ToPort": "8080",
+                        "CidrIp": "128.112.0.0/16"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8080",
+                        "ToPort": "8080",
+                        "CidrIp": "140.180.0.0/16"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8080",
+                        "ToPort": "8080",
+                        "CidrIp": "204.153.48.0/23"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8080",
+                        "ToPort": "8080",
+                        "CidrIp": "66.180.176.0/24"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8080",
+                        "ToPort": "8080",
+                        "CidrIp": "66.180.180.0/22"
                     }
                 ]
             }
