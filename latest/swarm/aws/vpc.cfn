@@ -78,7 +78,7 @@
         "DockerComposeLocation" : {
             "Type" : "String",
             "Description" : "Location of the docker compose file to deploy to swarm",
-            "Default" : "https://raw.githubusercontent.com/wongwill86/air-tasks/master/docker/docker-compose-CeleryExecutor.yml",
+            "Default" : "https://raw.githubusercontent.com/seung-lab/seuron/ranl_minnie/deploy/docker-compose-CeleryExecutor.yml",
             "MinLength": 1
         },
         "ManagerIP0" : {
