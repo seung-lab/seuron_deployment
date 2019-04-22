@@ -43,6 +43,8 @@ resources:
                         export INFRAKIT_IMAGE={{ properties["image"] }}
                         echo INFRAKIT_GROUPS_URL={{ properties["configURL"] }} >> /etc/environment
                         echo INFRAKIT_IMAGE={{ properties["image"] }} >> /etc/environment
+                        echo SLACK_TOKEN={{ properties["slackToken"] }} >> /etc/environment
+                        echo WORKERID={{ properties["workerID"] }} >> /etc/environment
                         mkdir -p /infrakit
                         docker swarm init
                         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v /infrakit:/infrakit \
