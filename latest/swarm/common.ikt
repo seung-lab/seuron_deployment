@@ -11,6 +11,7 @@ queried later even after the bootstrapping (cloudformation) completes.
 {{ if metadata `vars` }}
 {{ var `/cluster/provider`            ( metadata `vars/cluster/provider` )}}
 {{ var `/cluster/name`                ( metadata `vars/cluster/name` )}}
+{{ var `/cluster/subnetwork`          ( metadata `vars/cluster/subnetwork` )}}
 {{ var `/infrakit/config/root`        ( metadata `vars/infrakit/config/root` )}}
 {{ var `/infrakit/metadata/configURL` ( metadata `vars/infrakit/metadata/configURL` ) }}
 {{ var `/infrakit/docker/image`       ( metadata `vars/infrakit/docker/image` )}}
