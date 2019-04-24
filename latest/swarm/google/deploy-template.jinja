@@ -54,6 +54,7 @@ resources:
                         --var /cluster/tag/user={{ properties["user" ] }} \
                         --var /cluster/tag/project={{ properties["project" ] }} \
                         --var /cluster/name={{ env["deployment" ] }} \
+                        --var /cluster/subnetwork={{ properties["subnetwork" ] }} \
                         --var /cluster/swarm/manager/ips/0={{ properties["managerIP0"] }} \
                         --var /cluster/swarm/manager/ips/1={{ properties["managerIP1"] }} \
                         --var /cluster/swarm/manager/ips/2={{ properties["managerIP2"] }} \
@@ -86,7 +87,7 @@ resources:
                         docker stack deploy -c compose.yml {{ env["deployment"] }}
           networkInterfaces:
               - network: $(ref.{{ env["deployment"] }}-network.selfLink)
-                subnetwork: $(ref.{{ env["deployment"]  }}-central1-subnetwork.selfLink)
+                subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
                 networkIP: {{ properties["managerIP0"] }}
                 accessConfigs:
                  - type: ONE_TO_ONE_NAT
@@ -106,21 +107,21 @@ resources:
       type: compute.v1.network
       properties:
           autoCreateSubnetworks: false
-    - name: {{ env["deployment"] }}-central1-subnetwork
+    - name: {{ env["deployment"] }}-us-central1-subnetwork
       type: compute.v1.subnetwork
       properties:
           region: us-central1
           ipCidrRange: 172.31.16.0/20
           privateIpGoogleAccess: true
           network: $(ref.{{ env["deployment"] }}-network.selfLink)
-    - name: {{ env["deployment"] }}-east1-subnetwork
+    - name: {{ env["deployment"] }}-us-east1-subnetwork
       type: compute.v1.subnetwork
       properties:
           region: us-east1
           ipCidrRange: 172.31.32.0/20
           privateIpGoogleAccess: true
           network: $(ref.{{ env["deployment"] }}-network.selfLink)
-    - name: {{ env["deployment"] }}-west1-subnetwork
+    - name: {{ env["deployment"] }}-us-west1-subnetwork
       type: compute.v1.subnetwork
       properties:
           region: us-west1

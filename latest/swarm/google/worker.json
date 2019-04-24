@@ -8,7 +8,7 @@ Config for workers on Google
     "Properties": {
         "NamePrefix": "{{ var `/cluster/name` }}-worker",
         "Network": "{{ var `/cluster/name` }}-network",
-        "Subnetwork": "{{ var `/cluster/name` }}-central1-subnetwork",
+        "Subnetwork": "{{ var `/cluster/name` }}-{{ var `/cluster/subnetwork` }}-subnetwork",
         "Tags": [
           "cluster-{{ var `/cluster/name` }}-network",
           "princeton-access",
