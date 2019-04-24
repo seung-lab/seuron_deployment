@@ -42,6 +42,7 @@ docker run --rm {{$dockerMounts}} {{$dockerEnvs}} {{$dockerImage}} \
        infrakit vars change -c \
        cluster/provider={{ var `/cluster/provider` }} \
        cluster/name={{ var `/cluster/name` }} \
+       cluster/subnetwork={{ var `/cluster/subnetwork` }} \
        infrakit/config/root={{ var `/infrakit/config/root` }} \
        infrakit/docker/image={{ var `/infrakit/docker/image` }} \
        infrakit/metadata/configURL={{ var `/infrakit/metadata/configURL` }} \
