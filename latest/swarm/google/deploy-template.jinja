@@ -1,4 +1,60 @@
 resources:
+    - name: {{ env["deployment"] }}-template-0
+      type: compute.v1.instanceTemplates
+      properties:
+          project: {{ env["project"]  }}
+          properties:
+              zone: {{ properties["zone"] }}
+              machineType: {{ properties["instanceTypeWorker"] }}
+              disks:
+                  - type: PERSISTENT
+                    boot: true
+                    autoDelete: true
+                    initializeParams:
+                        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+                        diskSizeGb: 20
+              tags:
+                  items:
+                      - princeton-access
+              metadata:
+                  items:
+                      - key: startup-script
+                        value: |
+                            #!/bin/bash
+                            set -e
+                            mount -t tmpfs tmpfs /tmp
+                            if [ -f "/etc/docker_init_done" ]; then
+                                echo "docker already setup"
+                            else
+                                echo ##### Set up Docker #############################################################
+                                curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+                                apt-key fingerprint 0EBFCD88
+                                add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+                                apt-get update -y
+                                apt-get install docker-ce -y
+                                sudo usermod -aG docker ubuntu
+                                touch /etc/docker_init_done
+                            fi
+                            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
+                            service docker restart
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp  -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 -e FERNET_KEY=Z3jDcE-i0gRc7-A0ETMDUxd1MuL3Ye0tVcdDl5zmnec=  ranlu/air-tasks airflow worker -q atomic
+              networkInterfaces:
+                  - network: $(ref.{{ env["deployment"] }}-network.selfLink)
+                    subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
+                    accessConfigs:
+                     - type: ONE_TO_ONE_NAT
+                       name: External NAT
+              serviceAccounts:
+                  - scopes:
+                        - https://www.googleapis.com/auth/cloud-platform
+                        - https://www.googleapis.com/auth/compute
+                        - https://www.googleapis.com/auth/servicecontrol
+                        - https://www.googleapis.com/auth/service.management.readonly
+                        - https://www.googleapis.com/auth/logging.write
+                        - https://www.googleapis.com/auth/monitoring.write
+                        - https://www.googleapis.com/auth/trace.append
+                        - https://www.googleapis.com/auth/devstorage.read_only
+                        - https://www.googleapis.com/auth/cloud.useraccounts.readonly
     - name: {{ env["deployment"] }}-bootstrap
       type: compute.v1.instance
       properties:
