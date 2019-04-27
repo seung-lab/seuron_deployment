@@ -103,16 +103,20 @@ the instances it manages reside.
             "Properties": {
                 "Allocation": {
                     "LogicalIDs": [
-                            "{{ $databaseIP0 }}"
+                            {{ if gt $databaseSize 0 }}
+                            ,"{{ $databaseIP0 }}"
+                            {{ end }}
                     ]
                 },
                 "Flavor": {
                     "Plugin": "swarm/manager",
                     "Properties": {
                         "Attachments" : {
+                            {{ if gt $databaseSize 0 }}
                             "{{ $databaseIP0 }}": [
                               { "ID": "{{ $databaseIP0 }}", "Type": "ebs" }
                             ]
+                            {{ end }}
                         },
                         "InitScriptTemplateURL": "{{ $databaseInit }}",
                         "SwarmJoinIP": "{{ $swarmLeaderIP }}",
