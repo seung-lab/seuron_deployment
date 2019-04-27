@@ -23,6 +23,7 @@ the instances it manages reside.
 
 {{ $prov := (var `/cluster/provider`) }}
 {{ $managerSize := int (var `/cluster/size/manager`) }}
+{{ $databaseSize := int (var `/cluster/size/database`) }}
 {{ $workerSize := int (var `/cluster/size/worker`) }}
 {{ $dockerEngine := `unix:///var/run/docker.sock` }} {{/* for this flavor to connect to */}}
 
