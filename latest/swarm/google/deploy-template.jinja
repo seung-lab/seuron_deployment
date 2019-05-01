@@ -23,6 +23,7 @@ resources:
                             #!/bin/bash
                             set -e
                             mount -t tmpfs tmpfs /tmp
+                            mkdir -p /var/lib/mysql
                             if [ -f "/etc/docker_init_done" ]; then
                                 echo "docker already setup"
                             else
