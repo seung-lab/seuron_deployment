@@ -101,6 +101,8 @@ resources:
                         export WORKERID=seuron-worker-{{ env["deployment"]  }}
                         echo INFRAKIT_GROUPS_URL={{ properties["configURL"] }} >> /etc/environment
                         echo INFRAKIT_IMAGE={{ properties["image"] }} >> /etc/environment
+                        echo SLACK_TOKEN={{ properties["slackToken"]  }} >> /etc/environment
+                        echo WORKERID=seuron-worker-{{ env["deployment"]  }} >> /etc/environment
                         mkdir -p /infrakit
                         docker swarm init
                         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v /infrakit:/infrakit \
