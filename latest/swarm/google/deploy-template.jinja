@@ -23,7 +23,6 @@ resources:
                             #!/bin/bash
                             set -e
                             mount -t tmpfs tmpfs /tmp
-                            mkdir -p /var/lib/mysql
                             if [ -f "/etc/docker_init_done" ]; then
                                 echo "docker already setup"
                             else
@@ -91,6 +90,7 @@ resources:
                     value: |
                         #!/bin/bash
                         set -e
+                        mkdir -p /var/lib/mysql
                         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - &&
                         apt-key fingerprint 0EBFCD88 &&
                         add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
