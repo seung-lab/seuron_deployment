@@ -24,6 +24,7 @@ resources:
                             set -e
                             mount -t tmpfs tmpfs /tmp
                             export FERNET_KEY={{ properties["fernetKey"] }}
+                            export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}
                             if [ -f "/etc/docker_init_done" ]; then
                                 echo "docker already setup"
                             else
@@ -98,11 +99,13 @@ resources:
                         apt-get update &&
                         apt-get install docker-ce -y &&
                         export FERNET_KEY={{ properties["fernetKey"] }}
+                        export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}
                         export INFRAKIT_GROUPS_URL={{ properties["configURL"] }}
                         export INFRAKIT_IMAGE={{ properties["image"] }}
                         export SLACK_TOKEN={{ properties["slackToken"]  }}
                         export WORKERID=seuron-worker-{{ env["deployment"]  }}
                         echo FERNET_KEY={{ properties["fernetKey"] }} >> /etc/environment
+                        echo REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }} >> /etc/environment
                         echo INFRAKIT_GROUPS_URL={{ properties["configURL"] }} >> /etc/environment
                         echo INFRAKIT_IMAGE={{ properties["image"] }} >> /etc/environment
                         echo SLACK_TOKEN={{ properties["slackToken"]  }} >> /etc/environment
