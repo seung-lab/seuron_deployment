@@ -39,7 +39,7 @@ resources:
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
                             service docker restart
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp  -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 -e FERNET_KEY=${FERNET_KEY} ranlu/air-tasks airflow worker -q atomic
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp  -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 ranlu/air-tasks:{{ properties["seuronImageTag"]  }} airflow worker -q atomic
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                     subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
@@ -104,12 +104,16 @@ resources:
                         export INFRAKIT_IMAGE={{ properties["image"] }}
                         export SLACK_TOKEN={{ properties["slackToken"]  }}
                         export WORKERID=seuron-worker-{{ env["deployment"]  }}
+                        export SEURON_TAG={{ properties["seuronImageTag"] }}
+
                         echo FERNET_KEY={{ properties["fernetKey"] }} >> /etc/environment
                         echo REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }} >> /etc/environment
                         echo INFRAKIT_GROUPS_URL={{ properties["configURL"] }} >> /etc/environment
                         echo INFRAKIT_IMAGE={{ properties["image"] }} >> /etc/environment
                         echo SLACK_TOKEN={{ properties["slackToken"]  }} >> /etc/environment
                         echo WORKERID=seuron-worker-{{ env["deployment"]  }} >> /etc/environment
+                        echo SEURON_TAG={{ properties["seuronImageTag"] }} >> /etc/environment
+
                         mkdir -p /infrakit
                         docker swarm init
                         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v /infrakit:/infrakit \
