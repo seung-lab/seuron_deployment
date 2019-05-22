@@ -23,6 +23,7 @@ resources:
                             #!/bin/bash
                             set -e
                             mount -t tmpfs tmpfs /tmp
+                            export FERNET_KEY={{ properties["fernetKey"] }}
                             if [ -f "/etc/docker_init_done" ]; then
                                 echo "docker already setup"
                             else
@@ -37,7 +38,7 @@ resources:
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
                             service docker restart
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp  -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 -e FERNET_KEY=Z3jDcE-i0gRc7-A0ETMDUxd1MuL3Ye0tVcdDl5zmnec=  ranlu/air-tasks airflow worker -q atomic
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp  -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 -e FERNET_KEY=${FERNET_KEY} ranlu/air-tasks airflow worker -q atomic
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                     subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
@@ -96,10 +97,12 @@ resources:
                         add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
                         apt-get update &&
                         apt-get install docker-ce -y &&
+                        export FERNET_KEY={{ properties["fernetKey"] }}
                         export INFRAKIT_GROUPS_URL={{ properties["configURL"] }}
                         export INFRAKIT_IMAGE={{ properties["image"] }}
                         export SLACK_TOKEN={{ properties["slackToken"]  }}
                         export WORKERID=seuron-worker-{{ env["deployment"]  }}
+                        echo FERNET_KEY={{ properties["fernetKey"] }} >> /etc/environment
                         echo INFRAKIT_GROUPS_URL={{ properties["configURL"] }} >> /etc/environment
                         echo INFRAKIT_IMAGE={{ properties["image"] }} >> /etc/environment
                         echo SLACK_TOKEN={{ properties["slackToken"]  }} >> /etc/environment
