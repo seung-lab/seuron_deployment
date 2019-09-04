@@ -1,11 +1,11 @@
 resources:
-    - name: {{ env["deployment"] }}-template-0
+    - name: {{ env["deployment"] }}-template-atomic-worker
       type: compute.v1.instanceTemplates
       properties:
           project: {{ env["project"]  }}
           properties:
               zone: {{ properties["zone"] }}
-              machineType: {{ properties["instanceTypeWorker"] }}
+              machineType: {{ properties["instanceTypeAtomicWorker"] }}
               disks:
                   - type: PERSISTENT
                     boot: true
@@ -16,6 +16,8 @@ resources:
               tags:
                   items:
                       - princeton-access
+              scheduling:
+                  preemptible: true
               metadata:
                   items:
                       - key: startup-script
@@ -24,7 +26,7 @@ resources:
                             set -e
                             mount -t tmpfs tmpfs /tmp
                             export FERNET_KEY={{ properties["fernetKey"] }}
-                            export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}
+                            export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }}
                             if [ -f "/etc/docker_init_done" ]; then
                                 echo "docker already setup"
                             else
@@ -39,7 +41,10 @@ resources:
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
                             service docker restart
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp  -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 ranlu/air-tasks:{{ properties["seuronImageTag"]  }} airflow worker -q atomic
+                            docker swarm init
+                            docker service create --name igneous ranlu/air-tasks:{{ properties["seuronImageTag"] }} python igneous_exec/task_execution.py --queue igneous --qurl amqp://172.31.31.249:5672
+                            docker service scale igneous=32
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 ranlu/air-tasks:{{ properties["seuronImageTag"] }} airflow worker -q atomic
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                     subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
@@ -48,15 +53,68 @@ resources:
                        name: External NAT
               serviceAccounts:
                   - scopes:
-                        - https://www.googleapis.com/auth/cloud-platform
-                        - https://www.googleapis.com/auth/compute
-                        - https://www.googleapis.com/auth/servicecontrol
-                        - https://www.googleapis.com/auth/service.management.readonly
                         - https://www.googleapis.com/auth/logging.write
                         - https://www.googleapis.com/auth/monitoring.write
-                        - https://www.googleapis.com/auth/trace.append
-                        - https://www.googleapis.com/auth/devstorage.read_only
-                        - https://www.googleapis.com/auth/cloud.useraccounts.readonly
+                        - https://www.googleapis.com/auth/devstorage.read_write
+
+    - name: {{ env["deployment"] }}-template-composite-worker
+      type: compute.v1.instanceTemplates
+      properties:
+          project: {{ env["project"]  }}
+          properties:
+              zone: {{ properties["zone"] }}
+              machineType: {{ properties["instanceTypeCompositeWorker"] }}
+              disks:
+                  - type: PERSISTENT
+                    boot: true
+                    autoDelete: true
+                    initializeParams:
+                        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+                        diskSizeGb: 20
+              tags:
+                  items:
+                      - princeton-access
+              scheduling:
+                  preemptible: true
+              metadata:
+                  items:
+                      - key: startup-script
+                        value: |
+                            #!/bin/bash
+                            set -e
+                            mount -t tmpfs tmpfs /tmp
+                            export FERNET_KEY={{ properties["fernetKey"] }}
+                            export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }}
+                            if [ -f "/etc/docker_init_done" ]; then
+                                echo "docker already setup"
+                            else
+                                echo ##### Set up Docker #############################################################
+                                curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+                                apt-key fingerprint 0EBFCD88
+                                add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+                                apt-get update -y
+                                apt-get install docker-ce -y
+                                sudo usermod -aG docker ubuntu
+                                touch /etc/docker_init_done
+                            fi
+                            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
+                            service docker restart
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=8 ranlu/air-tasks:{{ properties["seuronImageTag"]  }} airflow worker -q composite_5 &
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=4 ranlu/air-tasks:{{ properties["seuronImageTag"]  }} airflow worker -q composite_6 &
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=2 ranlu/air-tasks:{{ properties["seuronImageTag"]  }} airflow worker -q composite_7 &
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 ranlu/air-tasks:{{ properties["seuronImageTag"]  }} airflow worker -q composite_8 &
+              networkInterfaces:
+                  - network: $(ref.{{ env["deployment"] }}-network.selfLink)
+                    subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
+                    accessConfigs:
+                     - type: ONE_TO_ONE_NAT
+                       name: External NAT
+              serviceAccounts:
+                  - scopes:
+                        - https://www.googleapis.com/auth/logging.write
+                        - https://www.googleapis.com/auth/monitoring.write
+                        - https://www.googleapis.com/auth/devstorage.read_write
+
     - name: {{ env["deployment"] }}-bootstrap
       type: compute.v1.instance
       properties:
@@ -98,21 +156,39 @@ resources:
                         add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
                         apt-get update &&
                         apt-get install docker-ce -y &&
+
                         export FERNET_KEY={{ properties["fernetKey"] }}
-                        export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}
+                        export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }}
                         export INFRAKIT_GROUPS_URL={{ properties["configURL"] }}
                         export INFRAKIT_IMAGE={{ properties["image"] }}
                         export SLACK_TOKEN={{ properties["slackToken"]  }}
-                        export WORKERID=seuron-worker-{{ env["deployment"]  }}
+                        export BOTID={{ properties["botID"]  }}
+                        export DEPLOYMENT={{ env["deployment"] }}
+                        export ZONE={{ properties["zone"] }}
                         export SEURON_TAG={{ properties["seuronImageTag"] }}
 
+                        export MYSQL_USER="airflow"
+                        export MYSQL_PASSWORD="airflow"
+                        export MYSQL_DATABASE="airflow"
+                        export MYSQL_ROOT_PASSWORD="root_password"
+
                         echo FERNET_KEY={{ properties["fernetKey"] }} >> /etc/environment
-                        echo REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }} >> /etc/environment
+                        echo REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }} >> /etc/environment
                         echo INFRAKIT_GROUPS_URL={{ properties["configURL"] }} >> /etc/environment
                         echo INFRAKIT_IMAGE={{ properties["image"] }} >> /etc/environment
                         echo SLACK_TOKEN={{ properties["slackToken"]  }} >> /etc/environment
-                        echo WORKERID=seuron-worker-{{ env["deployment"]  }} >> /etc/environment
+                        echo BOTID={{ properties["botID"]  }} >> /etc/environment
+                        echo DEPLOYMENT={{ env["deployment"] }} >> /etc/environment
+                        echo ZONE={{ properties["zone"] }} >> /etc/environment
                         echo SEURON_TAG={{ properties["seuronImageTag"] }} >> /etc/environment
+
+                        echo MYSQL_USER="airflow" >> /etc/environment
+                        echo MYSQL_PASSWORD="airflow" >> /etc/environment
+                        echo MYSQL_DATABASE="airflow" >> /etc/environment
+                        echo MYSQL_ROOT_PASSWORD="root_password" >> /etc/environment
+
+                        export ATOMIC_WORKER_GROUP={{ env["deployment"]  }}-atomic-workers-{{ properties["zone"] }}
+                        export COMPOSITE_WORKER_GROUP={{ env["deployment"]  }}-composite-workers-{{ properties["zone"] }}
 
                         mkdir -p /infrakit
                         docker swarm init
@@ -135,7 +211,7 @@ resources:
                         --var /cluster/size/worker={{ properties["sizeWorker"] }} \
                         --var /cluster/instanceType/manager={{ properties["instanceTypeManager"] }} \
                         --var /cluster/instanceType/database={{ properties["instanceTypeDatabase"] }} \
-                        --var /cluster/instanceType/worker={{ properties["instanceTypeWorker"] }} \
+                        --var /cluster/instanceType/worker={{ properties["instanceTypeAtomicWorker"] }} \
                         --var /infrakit/config/root={{ properties["configRoot"] }} \
                         --var /infrakit/metadata/configURL={{ properties["configURL"] }} \
                         --var /provider/image/hasDocker=no \
@@ -154,6 +230,8 @@ resources:
                         done
                         wget -O compose.yml {{ properties["composeLocation"] }}
                         docker stack deploy -c compose.yml {{ env["deployment"] }}
+                        gcloud compute instance-groups managed create $ATOMIC_WORKER_GROUP --base-instance-name $ATOMIC_WORKER_GROUP --size 0 --template {{ env["deployment"]  }}-template-atomic-worker --zone {{ properties["zone"] }}
+                        gcloud compute instance-groups managed create $COMPOSITE_WORKER_GROUP --base-instance-name $COMPOSITE_WORKER_GROUP --size 0 --template {{ env["deployment"]  }}-template-composite-worker --zone {{ properties["zone"] }}
           networkInterfaces:
               - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                 subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
