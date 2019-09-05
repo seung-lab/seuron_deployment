@@ -162,7 +162,7 @@ resources:
                         export INFRAKIT_GROUPS_URL={{ properties["configURL"] }}
                         export INFRAKIT_IMAGE={{ properties["image"] }}
                         export SLACK_TOKEN={{ properties["slackToken"]  }}
-                        export BOTID={{ properties["botID"]  }}
+                        export BOTUSERID={{ properties["botUserID"]  }}
                         export DEPLOYMENT={{ env["deployment"] }}
                         export ZONE={{ properties["zone"] }}
                         export SEURON_TAG={{ properties["seuronImageTag"] }}
@@ -177,7 +177,7 @@ resources:
                         echo INFRAKIT_GROUPS_URL={{ properties["configURL"] }} >> /etc/environment
                         echo INFRAKIT_IMAGE={{ properties["image"] }} >> /etc/environment
                         echo SLACK_TOKEN={{ properties["slackToken"]  }} >> /etc/environment
-                        echo BOTID={{ properties["botID"]  }} >> /etc/environment
+                        echo BOTUSERID={{ properties["botUserID"]  }} >> /etc/environment
                         echo DEPLOYMENT={{ env["deployment"] }} >> /etc/environment
                         echo ZONE={{ properties["zone"] }} >> /etc/environment
                         echo SEURON_TAG={{ properties["seuronImageTag"] }} >> /etc/environment
