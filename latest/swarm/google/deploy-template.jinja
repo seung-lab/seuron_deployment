@@ -149,6 +149,10 @@ resources:
                   - key: startup-script
                     value: |
                         #!/bin/bash
+                        if [ -f "/etc/bootstrap_done" ]; then
+                            echo "bootstrap has been done already!"
+                            exit 0
+                        fi
                         set -e
                         mkdir -p /var/lib/mysql
                         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - &&
@@ -232,6 +236,8 @@ resources:
                         docker stack deploy -c compose.yml {{ env["deployment"] }}
                         gcloud compute instance-groups managed create $ATOMIC_WORKER_GROUP --base-instance-name $ATOMIC_WORKER_GROUP --size 0 --template {{ env["deployment"]  }}-template-atomic-worker --zone {{ properties["zone"] }}
                         gcloud compute instance-groups managed create $COMPOSITE_WORKER_GROUP --base-instance-name $COMPOSITE_WORKER_GROUP --size 0 --template {{ env["deployment"]  }}-template-composite-worker --zone {{ properties["zone"] }}
+
+                        touch /etc/bootstrap_done
           networkInterfaces:
               - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                 subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
