@@ -151,6 +151,7 @@ resources:
                         #!/bin/bash
                         if [ -f "/etc/bootstrap_done" ]; then
                             echo "bootstrap has been done already!"
+                            service docker restart
                             exit 0
                         fi
                         set -e
