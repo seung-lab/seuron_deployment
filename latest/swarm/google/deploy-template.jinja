@@ -209,7 +209,7 @@ resources:
                             exit 0
                         fi
                         set -e
-                        mkdir -p /var/lib/mysql
+                        mkdir -p /var/lib/mysql /var/lib/rabbitmq
                         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - &&
                         apt-key fingerprint 0EBFCD88 &&
                         add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
