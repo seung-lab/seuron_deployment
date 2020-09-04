@@ -65,7 +65,7 @@ resources:
                             }
                             EOF
                             service docker restart
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 ranlu/air-tasks:{{ properties["seuronImageTag"] }} airflow worker -q gpu
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 {{ properties["seuronImage"] }} airflow worker -q gpu
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                     subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
@@ -120,7 +120,7 @@ resources:
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
                             service docker restart
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 ranlu/air-tasks:{{ properties["seuronImageTag"] }} airflow worker -q atomic
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 {{ properties["seuronImage"] }} airflow worker -q atomic
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                     subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
@@ -176,7 +176,7 @@ resources:
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
                             service docker restart
                             docker swarm init
-                            docker service create --name igneous ranlu/air-tasks:{{ properties["seuronImageTag"] }} python igneous_exec/task_execution.py --queue igneous --qurl amqp://172.31.31.249:5672
+                            docker service create --name igneous {{ properties["seuronImage"] }} python igneous_exec/task_execution.py --queue igneous --qurl amqp://172.31.31.249:5672
                             docker service scale igneous=32
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
@@ -232,10 +232,10 @@ resources:
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
                             service docker restart
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=8 ranlu/air-tasks:{{ properties["seuronImageTag"]  }} airflow worker -q composite_5 &
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=4 ranlu/air-tasks:{{ properties["seuronImageTag"]  }} airflow worker -q composite_6 &
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=2 ranlu/air-tasks:{{ properties["seuronImageTag"]  }} airflow worker -q composite_7 &
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 ranlu/air-tasks:{{ properties["seuronImageTag"]  }} airflow worker -q composite_8 &
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=8 {{ properties["seuronImage"]  }} airflow worker -q composite_5 &
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=4 {{ properties["seuronImage"]  }} airflow worker -q composite_6 &
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=2 {{ properties["seuronImage"]  }} airflow worker -q composite_7 &
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 {{ properties["seuronImage"]  }} airflow worker -q composite_8 &
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                     subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
@@ -303,7 +303,7 @@ resources:
                         export BOTUSERID={{ properties["botUserID"]  }}
                         export DEPLOYMENT={{ env["deployment"] }}
                         export ZONE={{ properties["zone"] }}
-                        export SEURON_TAG={{ properties["seuronImageTag"] }}
+                        export SEURON_TAG={{ properties["seuronImage"] }}
 
                         export MYSQL_USER="airflow"
                         export MYSQL_PASSWORD="airflow"
@@ -318,7 +318,7 @@ resources:
                         echo BOTUSERID={{ properties["botUserID"]  }} >> /etc/environment
                         echo DEPLOYMENT={{ env["deployment"] }} >> /etc/environment
                         echo ZONE={{ properties["zone"] }} >> /etc/environment
-                        echo SEURON_TAG={{ properties["seuronImageTag"] }} >> /etc/environment
+                        echo SEURON_TAG={{ properties["seuronImage"] }} >> /etc/environment
 
                         echo MYSQL_USER="airflow" >> /etc/environment
                         echo MYSQL_PASSWORD="airflow" >> /etc/environment
