@@ -18,6 +18,8 @@ resources:
                       - princeton-access
               scheduling:
                   preemptible: true
+              labels:
+                  type: seuron-gpu-worker
               guestAccelerators:
                   - acceleratorCount: 1
                     acceleratorType: nvidia-tesla-t4
@@ -97,6 +99,8 @@ resources:
                       - princeton-access
               scheduling:
                   preemptible: true
+              labels:
+                  type: seuron-atomic-worker
               metadata:
                   items:
                       - key: startup-script
@@ -152,6 +156,8 @@ resources:
                       - princeton-access
               scheduling:
                   preemptible: true
+              labels:
+                  type: seuron-igneous-worker
               metadata:
                   items:
                       - key: startup-script
@@ -209,6 +215,8 @@ resources:
                       - princeton-access
               scheduling:
                   preemptible: true
+              labels:
+                  type: seuron-composite-worker
               metadata:
                   items:
                       - key: startup-script
@@ -265,6 +273,8 @@ resources:
                   - princeton-access
                   - http-server
                   - https-server
+          labels:
+              type: seuron-manager
           metadata:
               items:
                   - key: infrakit--scope
