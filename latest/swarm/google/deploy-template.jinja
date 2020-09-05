@@ -297,8 +297,6 @@ resources:
 
                         export FERNET_KEY={{ properties["fernetKey"] }}
                         export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }}
-                        export INFRAKIT_GROUPS_URL={{ properties["configURL"] }}
-                        export INFRAKIT_IMAGE={{ properties["image"] }}
                         export SLACK_TOKEN={{ properties["slackToken"]  }}
                         export BOTUSERID={{ properties["botUserID"]  }}
                         export DEPLOYMENT={{ env["deployment"] }}
@@ -312,8 +310,6 @@ resources:
 
                         echo FERNET_KEY={{ properties["fernetKey"] }} >> /etc/environment
                         echo REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }} >> /etc/environment
-                        echo INFRAKIT_GROUPS_URL={{ properties["configURL"] }} >> /etc/environment
-                        echo INFRAKIT_IMAGE={{ properties["image"] }} >> /etc/environment
                         echo SLACK_TOKEN={{ properties["slackToken"]  }} >> /etc/environment
                         echo BOTUSERID={{ properties["botUserID"]  }} >> /etc/environment
                         echo DEPLOYMENT={{ env["deployment"] }} >> /etc/environment
@@ -330,34 +326,7 @@ resources:
                         export COMPOSITE_WORKER_GROUP={{ env["deployment"]  }}-composite-workers-{{ properties["zone"] }}
                         export IGNEOUS_WORKER_GROUP={{ env["deployment"]  }}-igneous-workers-{{ properties["zone"] }}
 
-                        mkdir -p /infrakit
                         docker swarm init
-                        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v /infrakit:/infrakit \
-                        {{ properties["image"] }} \
-                        infrakit util init --group-id managers --start combo --start swarm \
-                        --var /cluster/provider=google \
-                        --var /cluster/tag/user={{ properties["user" ] }} \
-                        --var /cluster/tag/project={{ properties["project" ] }} \
-                        --var /cluster/name={{ env["deployment" ] }} \
-                        --var /cluster/subnetwork={{ properties["subnetwork" ] }} \
-                        --var /cluster/swarm/manager/ips/0={{ properties["managerIP0"] }} \
-                        --var /cluster/swarm/manager/ips/1={{ properties["managerIP1"] }} \
-                        --var /cluster/swarm/manager/ips/2={{ properties["managerIP2"] }} \
-                        --var /cluster/swarm/manager/ips/3={{ properties["managerIP3"] }} \
-                        --var /cluster/swarm/manager/ips/4={{ properties["managerIP4"] }} \
-                        --var /cluster/swarm/database/ips/0={{ properties["databaseIP0"] }} \
-                        --var /cluster/size/manager={{ properties["sizeManager"] }} \
-                        --var /cluster/size/database={{ properties["sizeDatabase"] }} \
-                        --var /cluster/size/worker={{ properties["sizeWorker"] }} \
-                        --var /cluster/instanceType/manager={{ properties["instanceTypeManager"] }} \
-                        --var /cluster/instanceType/database={{ properties["instanceTypeDatabase"] }} \
-                        --var /cluster/instanceType/worker={{ properties["instanceTypeAtomicWorker"] }} \
-                        --var /infrakit/config/root={{ properties["configRoot"] }} \
-                        --var /infrakit/metadata/configURL={{ properties["configURL"] }} \
-                        --var /provider/image/hasDocker=no \
-                        --var /infrakit/docker/image={{ properties["image"] }} \
-                        {{ properties["configRoot"] }}/groups.json \
-                        | tee /var/lib/infrakit.boot | sh
                         echo '{{ properties["user"] }}' | docker secret create basic_auth_username -
                         echo '{{ properties["password"] }}' | docker secret create basic_auth_password -
                         sudo openssl genrsa 2048 | tee >(
