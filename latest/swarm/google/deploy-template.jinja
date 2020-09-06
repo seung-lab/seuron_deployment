@@ -22,7 +22,7 @@ resources:
                   type: seuron-gpu-worker
               guestAccelerators:
                   - acceleratorCount: 1
-                    acceleratorType: nvidia-tesla-t4
+                    acceleratorType: {{ properties["gpuWorkerAcceleratorType"] }}
               metadata:
                   items:
                       - key: startup-script
