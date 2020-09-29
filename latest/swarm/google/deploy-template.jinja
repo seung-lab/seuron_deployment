@@ -182,7 +182,7 @@ resources:
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
                             service docker restart
                             docker swarm init
-                            docker service create --name igneous {{ properties["seuronImage"] }} -e FERNET_KEY python igneous_exec/task_execution.py --queue igneous --qurl amqp://172.31.31.249:5672
+                            docker service create -e FERNET_KEY --name igneous {{ properties["seuronImage"] }} python igneous_exec/task_execution.py --queue igneous --qurl amqp://172.31.31.249:5672
                             docker service scale igneous=32
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
