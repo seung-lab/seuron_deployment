@@ -280,13 +280,6 @@ resources:
                   - key: startup-script
                     value: |
                         #!/bin/bash
-                        if [ -f "/etc/bootstrap_done" ]; then
-                            echo "bootstrap has been done already!"
-                            service docker restart
-                            sleep 60
-                            docker stack deploy -c compose.yml {{ env["deployment"] }}
-                            exit 0
-                        fi
                         set -e
                         mkdir -p /var/lib/mysql /var/lib/rabbitmq
                         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - &&
@@ -307,6 +300,7 @@ resources:
                         export MYSQL_PASSWORD="airflow"
                         export MYSQL_DATABASE="airflow"
                         export MYSQL_ROOT_PASSWORD="root_password"
+                        export MYSQL_MEM=$(free -m|grep Mem|awk '{print int($2/2)}')
 
                         echo FERNET_KEY={{ properties["fernetKey"] }} >> /etc/environment
                         echo REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }} >> /etc/environment
@@ -320,11 +314,20 @@ resources:
                         echo MYSQL_PASSWORD="airflow" >> /etc/environment
                         echo MYSQL_DATABASE="airflow" >> /etc/environment
                         echo MYSQL_ROOT_PASSWORD="root_password" >> /etc/environment
+                        echo MYSQL_MEM=$MYSQL_MEM >> /etc/environment
 
                         export GPU_WORKER_GROUP={{ env["deployment"]  }}-gpu-workers-{{ properties["zone"] }}
                         export ATOMIC_WORKER_GROUP={{ env["deployment"]  }}-atomic-workers-{{ properties["zone"] }}
                         export COMPOSITE_WORKER_GROUP={{ env["deployment"]  }}-composite-workers-{{ properties["zone"] }}
                         export IGNEOUS_WORKER_GROUP={{ env["deployment"]  }}-igneous-workers-{{ properties["zone"] }}
+
+                        if [ -f "/etc/bootstrap_done" ]; then
+                            echo "bootstrap has been done already!"
+                            service docker restart
+                            sleep 60
+                            docker stack deploy -c compose.yml {{ env["deployment"] }}
+                            exit 0
+                        fi
 
                         docker swarm init
                         echo '{{ properties["user"] }}' | docker secret create basic_auth_username -
