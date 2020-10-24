@@ -277,18 +277,6 @@ resources:
               type: seuron-manager
           metadata:
               items:
-                  - key: infrakit--scope
-                    value: {{ env["deployment"] }}
-                  - key: infrakit--group
-                    value: managers
-                  - key: infrakit--role
-                    value: managers
-                  - key: infrakit--config_sha
-                    value: bootstrap
-                  - key: infrakit-logical-id
-                    value: {{ properties["managerIP0"] }}
-                  - key: infrakit-gcp-version
-                    value: 1
                   - key: startup-script
                     value: |
                         #!/bin/bash
