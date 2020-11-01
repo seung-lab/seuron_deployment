@@ -53,6 +53,9 @@ resources:
                                 DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install nvidia-430 nvidia-container-toolkit nvidia-container-runtime
                                 mkdir -p /etc/docker
                                 systemctl restart docker
+                                gcloud auth --quiet configure-docker
+                                export PATH=/usr/lib/google-cloud-sdk/bin:$PATH
+                                echo PATH=$PATH >> /etc/environment
                                 touch /etc/docker_init_done
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
@@ -120,6 +123,9 @@ resources:
                                 apt-get update -y
                                 apt-get install docker-ce -y
                                 sudo usermod -aG docker ubuntu
+                                gcloud auth --quiet configure-docker
+                                export PATH=/usr/lib/google-cloud-sdk/bin:$PATH
+                                echo PATH=$PATH >> /etc/environment
                                 touch /etc/docker_init_done
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
@@ -177,12 +183,15 @@ resources:
                                 apt-get update -y
                                 apt-get install docker-ce -y
                                 sudo usermod -aG docker ubuntu
+                                gcloud auth --quiet configure-docker
+                                export PATH=/usr/lib/google-cloud-sdk/bin:$PATH
+                                echo PATH=$PATH >> /etc/environment
                                 touch /etc/docker_init_done
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
                             service docker restart
                             docker swarm init
-                            docker service create -e FERNET_KEY --name igneous {{ properties["seuronImage"] }} python igneous_exec/task_execution.py --queue igneous --qurl amqp://172.31.31.249:5672
+                            docker service create --with-registry-auth -e FERNET_KEY --name igneous {{ properties["seuronImage"] }} python igneous_exec/task_execution.py --queue igneous --qurl amqp://172.31.31.249:5672
                             docker service scale igneous=32
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
@@ -236,6 +245,9 @@ resources:
                                 apt-get update -y
                                 apt-get install docker-ce -y
                                 sudo usermod -aG docker ubuntu
+                                gcloud auth --quiet configure-docker
+                                export PATH=/usr/lib/google-cloud-sdk/bin:$PATH
+                                echo PATH=$PATH >> /etc/environment
                                 touch /etc/docker_init_done
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
@@ -325,9 +337,13 @@ resources:
                             echo "bootstrap has been done already!"
                             service docker restart
                             sleep 300
-                            docker stack deploy -c compose.yml {{ env["deployment"] }}
+                            docker stack deploy --with-registry-auth -c compose.yml {{ env["deployment"] }}
                             exit 0
                         fi
+
+                        gcloud auth --quiet configure-docker
+                        export PATH=/usr/lib/google-cloud-sdk/bin:$PATH
+                        echo PATH=$PATH >> /etc/environment
 
                         docker swarm init
                         echo '{{ properties["user"] }}' | docker secret create basic_auth_username -
@@ -337,7 +353,7 @@ resources:
                             sudo openssl req -x509 -nodes -days 365 -new -key /dev/stdin -subj "/C=US/ST=NJ/L=P/O=P/OU=SL/CN=SEURON" |
                             docker secret create ssl_certificate -
                         wget -O compose.yml {{ properties["composeLocation"] }}
-                        docker stack deploy -c compose.yml {{ env["deployment"] }}
+                        docker stack deploy --with-registry-auth -c compose.yml {{ env["deployment"] }}
                         gcloud compute instance-groups managed create $GPU_WORKER_GROUP --base-instance-name $GPU_WORKER_GROUP --size 0 --template {{ env["deployment"]  }}-template-gpu-worker --zone {{ properties["zone"] }}
                         gcloud compute instance-groups managed create $ATOMIC_WORKER_GROUP --base-instance-name $ATOMIC_WORKER_GROUP --size 0 --template {{ env["deployment"]  }}-template-atomic-worker --zone {{ properties["zone"] }}
                         gcloud compute instance-groups managed create $COMPOSITE_WORKER_GROUP --base-instance-name $COMPOSITE_WORKER_GROUP --size 0 --template {{ env["deployment"]  }}-template-composite-worker --zone {{ properties["zone"] }}
