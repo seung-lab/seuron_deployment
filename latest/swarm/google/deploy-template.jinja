@@ -323,9 +323,9 @@ resources:
 
                         if [ -f "/etc/bootstrap_done" ]; then
                             echo "bootstrap has been done already!"
-                            sleep 60
                             service docker restart
-                            #docker stack deploy -c compose.yml {{ env["deployment"] }}
+                            sleep 300
+                            docker stack deploy -c compose.yml {{ env["deployment"] }}
                             exit 0
                         fi
 
