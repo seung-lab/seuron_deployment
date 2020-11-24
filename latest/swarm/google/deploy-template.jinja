@@ -11,7 +11,7 @@ resources:
                     boot: true
                     autoDelete: true
                     initializeParams:
-                        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+                        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-2004-lts
                         diskSizeGb: 20
               tags:
                   items:
@@ -50,12 +50,10 @@ resources:
                                 add-apt-repository -y ppa:graphics-drivers/ppa
                                 apt-get update -y
 
-                                DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install nvidia-430 nvidia-container-toolkit nvidia-container-runtime
+                                DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install nvidia-headless-455 nvidia-container-toolkit nvidia-container-runtime
                                 mkdir -p /etc/docker
                                 systemctl restart docker
                                 gcloud auth --quiet configure-docker
-                                export PATH=/usr/lib/google-cloud-sdk/bin:$PATH
-                                echo PATH=$PATH >> /etc/environment
                                 touch /etc/docker_init_done
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
@@ -95,7 +93,7 @@ resources:
                     boot: true
                     autoDelete: true
                     initializeParams:
-                        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+                        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-2004-lts
                         diskSizeGb: 20
               tags:
                   items:
@@ -124,8 +122,6 @@ resources:
                                 apt-get install docker-ce -y
                                 sudo usermod -aG docker ubuntu
                                 gcloud auth --quiet configure-docker
-                                export PATH=/usr/lib/google-cloud-sdk/bin:$PATH
-                                echo PATH=$PATH >> /etc/environment
                                 touch /etc/docker_init_done
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
@@ -155,7 +151,7 @@ resources:
                     boot: true
                     autoDelete: true
                     initializeParams:
-                        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+                        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-2004-lts
                         diskSizeGb: 20
               tags:
                   items:
@@ -184,8 +180,6 @@ resources:
                                 apt-get install docker-ce -y
                                 sudo usermod -aG docker ubuntu
                                 gcloud auth --quiet configure-docker
-                                export PATH=/usr/lib/google-cloud-sdk/bin:$PATH
-                                echo PATH=$PATH >> /etc/environment
                                 touch /etc/docker_init_done
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
@@ -217,7 +211,7 @@ resources:
                     boot: true
                     autoDelete: true
                     initializeParams:
-                        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+                        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-2004-lts
                         diskSizeGb: 20
               tags:
                   items:
@@ -246,8 +240,6 @@ resources:
                                 apt-get install docker-ce -y
                                 sudo usermod -aG docker ubuntu
                                 gcloud auth --quiet configure-docker
-                                export PATH=/usr/lib/google-cloud-sdk/bin:$PATH
-                                echo PATH=$PATH >> /etc/environment
                                 touch /etc/docker_init_done
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
@@ -278,7 +270,7 @@ resources:
                 boot: true
                 autoDelete: true
                 initializeParams:
-                    sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+                    sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-2004-lts
                     diskSizeGb: 50
           tags:
               items:
@@ -342,8 +334,6 @@ resources:
                         fi
 
                         gcloud auth --quiet configure-docker
-                        export PATH=/usr/lib/google-cloud-sdk/bin:$PATH
-                        echo PATH=$PATH >> /etc/environment
 
                         docker swarm init
                         echo '{{ properties["user"] }}' | docker secret create basic_auth_username -
