@@ -384,6 +384,8 @@ resources:
                         export COMPOSITE_WORKER_GROUP={{ env["deployment"]  }}-composite-workers-{{ properties["zone"] }}
                         export IGNEOUS_WORKER_GROUP={{ env["deployment"]  }}-igneous-workers-{{ properties["zone"] }}
                         export CUSTOM_WORKER_GROUP={{ env["deployment"]  }}-custom-workers-{{ properties["zone"] }}
+                        systemctl enable cron.service
+                        systemctl start cron.service
 
                         if [ -f "/etc/bootstrap_done" ]; then
                             echo "bootstrap has been done already!"
@@ -392,6 +394,8 @@ resources:
                             docker stack deploy --with-registry-auth -c compose.yml {{ env["deployment"] }}
                             exit 0
                         fi
+
+                        echo "0 0 * * * docker system prune -f"|crontab -
 
                         gcloud auth --quiet configure-docker
 
