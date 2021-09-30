@@ -50,7 +50,7 @@ resources:
                                 add-apt-repository -y ppa:graphics-drivers/ppa
                                 apt-get update -y
 
-                                DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install nvidia-headless-455 nvidia-container-toolkit nvidia-container-runtime
+                                DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install nvidia-headless-470 nvidia-container-toolkit nvidia-container-runtime
                                 mkdir -p /etc/docker
                                 systemctl restart docker
                                 gcloud auth --quiet configure-docker
