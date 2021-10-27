@@ -29,7 +29,7 @@ resources:
                         value: |
                             #!/bin/bash
                             set -e
-                            mount -t tmpfs tmpfs /tmp
+                            mount -t tmpfs -o size=80%,noatime tmpfs /tmp
                             export FERNET_KEY={{ properties["fernetKey"] }}
                             export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }}
                             if [ -f "/etc/docker_init_done" ]; then
@@ -109,7 +109,7 @@ resources:
                         value: |
                             #!/bin/bash
                             set -e
-                            mount -t tmpfs tmpfs /tmp
+                            mount -t tmpfs -o size=80%,noatime tmpfs /tmp
                             export FERNET_KEY={{ properties["fernetKey"] }}
                             export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }}
                             if [ -f "/etc/docker_init_done" ]; then
@@ -166,7 +166,7 @@ resources:
                         value: |
                             #!/bin/bash
                             set -e
-                            mount -t tmpfs tmpfs /tmp
+                            mount -t tmpfs -o size=80%,noatime tmpfs /tmp
                             export FERNET_KEY={{ properties["fernetKey"] }}
                             export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }}
                             if [ -f "/etc/docker_init_done" ]; then
@@ -225,7 +225,7 @@ resources:
                         value: |
                             #!/bin/bash
                             set -e
-                            mount -t tmpfs tmpfs /tmp
+                            mount -t tmpfs -o size=80%,noatime tmpfs /tmp
                             export FERNET_KEY={{ properties["fernetKey"] }}
                             export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }}
                             if [ -f "/etc/docker_init_done" ]; then
@@ -285,7 +285,7 @@ resources:
                         value: |
                             #!/bin/bash
                             set -e
-                            mount -t tmpfs tmpfs /tmp
+                            mount -t tmpfs -o size=80%,noatime tmpfs /tmp
                             export FERNET_KEY={{ properties["fernetKey"] }}
                             export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }}
                             if [ -f "/etc/docker_init_done" ]; then
