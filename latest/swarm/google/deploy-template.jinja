@@ -340,6 +340,8 @@ resources:
               type: seuron-manager
           metadata:
               items:
+                  - key: redeploy
+                    value: false
                   - key: startup-script
                     value: |
                         #!/bin/bash
@@ -415,6 +417,17 @@ resources:
                         gcloud compute instance-groups managed create $CUSTOM_WORKER_GROUP --base-instance-name $CUSTOM_WORKER_GROUP --size 0 --template {{ env["deployment"]  }}-template-custom-worker --zone {{ properties["zone"] }}
 
                         touch /etc/bootstrap_done
+                        while true
+                        do
+                            if [ $(curl "http://metadata/computeMetadata/v1/instance/attributes/redeploy" -H "Metadata-Flavor: Google") == "true"  ]; then
+                                docker stack rm {{ env["deployment"] }}
+                                sleep 120
+                                docker stack deploy --with-registry-auth -c compose.yml {{ env["deployment"] }}
+                                sleep 300
+                            else
+                                sleep 60
+                            fi
+                        done
           networkInterfaces:
               - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                 subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
