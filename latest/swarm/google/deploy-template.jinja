@@ -391,7 +391,17 @@ resources:
                             service docker restart
                             sleep 300
                             docker stack deploy --with-registry-auth -c compose.yml {{ env["deployment"] }}
-                            exit 0
+                            while true
+                            do
+                                if [ $(curl "http://metadata/computeMetadata/v1/instance/attributes/redeploy" -H "Metadata-Flavor: Google") == "true"  ]; then
+                                    docker stack rm {{ env["deployment"] }}
+                                    sleep 120
+                                    docker stack deploy --with-registry-auth -c compose.yml {{ env["deployment"] }}
+                                    sleep 300
+                                else
+                                    sleep 60
+                                fi
+                            done
                         fi
 
                         echo "0 0 * * * docker system prune -f"|crontab -
