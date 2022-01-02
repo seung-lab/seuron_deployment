@@ -69,7 +69,7 @@ resources:
                             }
                             EOF
                             service docker restart
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=2 {{ properties["seuronImage"] }} airflow worker -q gpu
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=2 {{ properties["seuronImage"] }} airflow celery worker --without-gossip --without-mingle -q gpu
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                     subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
@@ -127,7 +127,7 @@ resources:
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
                             service docker restart
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 {{ properties["seuronImage"] }} airflow worker -q atomic
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 {{ properties["seuronImage"] }} airflow celery worker --without-gossip --without-mingle -q atomic
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                     subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
@@ -303,10 +303,11 @@ resources:
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
                             service docker restart
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=8 {{ properties["seuronImage"]  }} airflow worker -q composite_5 &
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=4 {{ properties["seuronImage"]  }} airflow worker -q composite_6 &
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=2 {{ properties["seuronImage"]  }} airflow worker -q composite_7 &
-                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 {{ properties["seuronImage"]  }} airflow worker -q composite_8 &
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 {{ properties["seuronImage"]  }} airflow celery worker --without-gossip --without-mingle -q atomic &
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=4 {{ properties["seuronImage"]  }} airflow celery worker --without-gossip --without-mingle -q composite_5 &
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=2 {{ properties["seuronImage"]  }} airflow celery worker --without-gossip --without-mingle -q composite_6 &
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 {{ properties["seuronImage"]  }} airflow celery worker --without-gossip --without-mingle -q composite_7 &
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER -e AIRFLOW__CELERY__CELERYD_CONCURRENCY=1 {{ properties["seuronImage"]  }} airflow celery worker --without-gossip --without-mingle -q composite_8 &
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                     subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
@@ -346,7 +347,7 @@ resources:
                     value: |
                         #!/bin/bash
                         set -e
-                        mkdir -p /var/lib/mysql /var/lib/rabbitmq
+                        mkdir -p /var/lib/postgresql/data /var/lib/rabbitmq
                         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - &&
                         apt-key fingerprint 0EBFCD88 &&
                         add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
@@ -354,6 +355,7 @@ resources:
                         apt-get install docker-ce -y &&
 
                         export FERNET_KEY={{ properties["fernetKey"] }}
+                        export SECRET_KEY={{ properties["secretKey"] }}
                         export REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }}
                         export SLACK_TOKEN={{ properties["slackToken"]  }}
                         export BOTUSERID={{ properties["botUserID"]  }}
@@ -361,13 +363,13 @@ resources:
                         export ZONE={{ properties["zone"] }}
                         export SEURON_TAG={{ properties["seuronImage"] }}
 
-                        export MYSQL_USER="airflow"
-                        export MYSQL_PASSWORD="airflow"
-                        export MYSQL_DATABASE="airflow"
-                        export MYSQL_ROOT_PASSWORD="root_password"
-                        export MYSQL_MEM=$(free -m|grep Mem|awk '{print int($2/2)}')
+                        export POSTGRES_USER="airflow"
+                        export POSTGRES_PASSWORD="airflow"
+                        export POSTGRES_DB="airflow"
+                        export POSTGRES_MEM=$(free -m|grep Mem|awk '{print int($2/4)}')
 
                         echo FERNET_KEY={{ properties["fernetKey"] }} >> /etc/environment
+                        echo SECRET_KEY={{ properties["secretKey"] }} >> /etc/environment
                         echo REMOTE_LOG_FOLDER={{ properties["remoteLogFolder"] }}/{{ env["deployment"] }} >> /etc/environment
                         echo SLACK_TOKEN={{ properties["slackToken"]  }} >> /etc/environment
                         echo BOTUSERID={{ properties["botUserID"]  }} >> /etc/environment
@@ -375,11 +377,10 @@ resources:
                         echo ZONE={{ properties["zone"] }} >> /etc/environment
                         echo SEURON_TAG={{ properties["seuronImage"] }} >> /etc/environment
 
-                        echo MYSQL_USER="airflow" >> /etc/environment
-                        echo MYSQL_PASSWORD="airflow" >> /etc/environment
-                        echo MYSQL_DATABASE="airflow" >> /etc/environment
-                        echo MYSQL_ROOT_PASSWORD="root_password" >> /etc/environment
-                        echo MYSQL_MEM=$MYSQL_MEM >> /etc/environment
+                        echo POSTGRES_USER="airflow" >> /etc/environment
+                        echo POSTGRES_PASSWORD="airflow" >> /etc/environment
+                        echo POSTGRES_DB="airflow" >> /etc/environment
+                        echo POSTGRES_MEM=$POSTGRES_MEM >> /etc/environment
 
                         export GPU_WORKER_GROUP={{ env["deployment"]  }}-gpu-workers-{{ properties["zone"] }}
                         export ATOMIC_WORKER_GROUP={{ env["deployment"]  }}-atomic-workers-{{ properties["zone"] }}
