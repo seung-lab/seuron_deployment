@@ -184,9 +184,7 @@ resources:
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
                             service docker restart
-                            docker swarm init
-                            docker service create --with-registry-auth -e FERNET_KEY --name custom {{ properties["seuronImage"] }} custom/worker.sh
-                            docker service scale custom=32
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER {{ properties["seuronImage"] }} parallel --retries 100 -j32 -N0 custom/worker.sh ::: {0..32}
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                     subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
@@ -243,9 +241,7 @@ resources:
                             fi
                             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
                             service docker restart
-                            docker swarm init
-                            docker service create --with-registry-auth -e FERNET_KEY --name igneous {{ properties["seuronImage"] }} python custom/task_execution.py --queue igneous --qurl amqp://172.31.31.249:5672
-                            docker service scale igneous=32
+                            docker run --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e FERNET_KEY -e REMOTE_LOG_FOLDER {{ properties["seuronImage"] }} parallel --retries 100 -j32 -N0 python custom/task_execution.py --queue igneous --qurl amqp://172.31.31.249:5672 ::: {0..32}
               networkInterfaces:
                   - network: $(ref.{{ env["deployment"] }}-network.selfLink)
                     subnetwork: $(ref.{{ env["deployment"]  }}-{{ properties["subnetwork"] }}-subnetwork.selfLink)
